@@ -1,6 +1,7 @@
 package com.dandoor.ddlib
 
 import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.pm.PackageManager
@@ -58,6 +59,23 @@ class DandoorBluetoothManager(private val context: Context) {
     private var outputStream: OutputStream? = null
     /** 현재 블루투스 연결 상태 플래그 */
     private var isConnected = false
+
+    /** 콜백 등록 함수 */
+    fun setCallback(callback: BluetoothCallback) {
+        this.callback = callback
+    }
+
+    /** 블루투스 어댑처 초기화 함수 */
+    fun initialize() : Boolean {
+        return try {
+            val bluetoothManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+            btAdapter = bluetoothManager.adapter
+            btAdapter != null
+        } catch (e: Exception) {
+            callback?.onConnectionError("블루투스 초기화 실패: ${e.message}")
+            false
+        }
+    }
 
     /** 차량 블루투스 기기(HC-06)와 연결 시도 (※ 연결 이전에 수동 페어링을 한 상태여야 함) */
     fun connectToCar() {
