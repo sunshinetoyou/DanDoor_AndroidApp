@@ -90,7 +90,6 @@ class MainActivity : AppCompatActivity() {
         btnLabToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
                 startTimer()
-                btnEngineToggle.isChecked = true
             }
             else stopTimer()
         }
@@ -100,6 +99,7 @@ class MainActivity : AppCompatActivity() {
             else bluetoothManager.sendCarCommand("stop")
         }
     }
+
 
     /** Timer
      * startTimer()     :
@@ -122,6 +122,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
+        btnEngineToggle.isChecked = true
         isTimerRunning = true
 
         // 입력 UI 숨기기
@@ -151,6 +152,7 @@ class MainActivity : AppCompatActivity() {
     }
     private fun stopTimer() {
         countDownTimer?.cancel()
+        btnEngineToggle.isChecked = false
         resetTimerUI()
     }
     private fun resetTimerUI() {
