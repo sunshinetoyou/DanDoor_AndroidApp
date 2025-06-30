@@ -1,11 +1,14 @@
 package com.dandoor.ddlib
 
+import android.Manifest
+import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothSocket
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import java.io.OutputStream
 import java.util.UUID
@@ -47,6 +50,9 @@ class DandoorBluetoothManager(private val context: Context) {
          */
         private val BT_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB")
         private const val TARGET_DEVICE_NAME = "HC-06"
+        
+        // 블루투스 권한 요청 코드
+        const val REQUEST_BLUETOOTH_PERMISSIONS = 1001
     }
 
     /** 블루투스 이벤트를 받을 콜백 인터페이스 구현체 */
@@ -77,6 +83,44 @@ class DandoorBluetoothManager(private val context: Context) {
         }
     }
 
+    /** 블루투스 권한 획득 */
+    /** 필요한 권한 목록 */
+    private fun getRequiredPermissions(): Array<String> {
+        return arrayOf(
+            Manifest.permission.BLUETOOTH_CONNECT,
+            Manifest.permission.BLUETOOTH_SCAN
+        )
+    }
+
+    /** 권한이 모두 허용되었는지 확인 */
+    fun hasRequiredPermissions(): Boolean {
+        return getRequiredPermissions().all { permission ->
+            ContextCompat.checkSelfPermission(context, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
+
+    /** 권한 요청 시작 */
+    fun requestBluetoothPermissions(activity: Activity) {
+        ActivityCompat.requestPermissions(
+            activity,
+            getRequiredPermissions(),
+            REQUEST_BLUETOOTH_PERMISSIONS
+        )
+    }
+
+    /** 권한 요청 결과 처리 */
+    fun onRequestPermissionsResult(
+        requestCode: Int,
+        grantResults: IntArray,
+        callback: (Boolean) -> Unit
+    ) {
+        if (requestCode == REQUEST_BLUETOOTH_PERMISSIONS) {
+            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            callback(allGranted)
+        }
+    }
+
+    /** FOR CAR */
     /** 차량 블루투스 기기(HC-06)와 연결 시도 (※ 연결 이전에 수동 페어링을 한 상태여야 함) */
     fun connectToCar() {
         val systemBluetoothManger = context.getSystemService(Context.BLUETOOTH_SERVICE) as android.bluetooth.BluetoothManager
