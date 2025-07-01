@@ -10,7 +10,8 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.dandoor.ddlib.DandoorBluetoothManager
+import com.dandoor.ddlib.DandoorBTManager
+import com.dandoor.ddlib.DandoorBTVehicle
 import com.google.android.material.progressindicator.CircularProgressIndicator
 
 class MainActivity : AppCompatActivity() {
@@ -30,39 +31,25 @@ class MainActivity : AppCompatActivity() {
     private var totalTimeInSeconds = 0
     private var isTimerRunning = false
 
-    private lateinit var bluetoothManager: DandoorBluetoothManager
+    private lateinit var btManager: DandoorBTManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
 
-        // BluetoothManger 초기화 & 콜벡 설정
-        bluetoothManager = DandoorBluetoothManager(this)
-
-        if (!bluetoothManager.hasRequiredPermissions()) {
-            bluetoothManager.requestBluetoothPermissions(this)
-        } else {
-            initializeBluetooth()
+        // BluetoothManger 초기화
+        btManager = DandoorBTManager(this)
+        // BT 권한 체크 및 요청
+        btManager.checkBTPermission(this) {granted ->
+            if (granted) {
+                setVehicleCallback()
+            } else {
+                Toast.makeText(this, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
+            }
         }
 
         initViews()
-        setupListeners()
-    }
-
-    // 권한 요청 결과 처리
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        bluetoothManager.onRequestPermissionsResult(requestCode, grantResults) { allGranted ->
-            if (allGranted) {
-                initializeBluetooth()
-            } else {
-                Toast.makeText(this, "권한이 필요합니다", Toast.LENGTH_SHORT).show()
-            }
-        }
+        setupBtnListeners()
     }
 
     /** 뷰 컴포넌트 초기화 (main_activity의 컴포넌트와 연결) */
@@ -82,21 +69,36 @@ class MainActivity : AppCompatActivity() {
     }
 
     /** 블루투스 연결, 랩 토글, 시동 토글 버튼 리스너 */
-    private fun setupListeners() {
+    private fun setupBtnListeners() {
         btnConnectBluetooth.setOnClickListener {
-            bluetoothManager.connectToCar()
+            btManager.connectToCar()
         }
 
         btnLabToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) {
-                startTimer()
+                // 입력값 파싱
+                val minutes = etMinutes.text.toString().toIntOrNull() ?: 0
+                val seconds = etSeconds.text.toString().toIntOrNull() ?: 0
+                totalTimeInSeconds = minutes * 60 + seconds
+
+                // 유효성 검사
+                if (totalTimeInSeconds <= 0) {
+                    Toast.makeText(this, "시간을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                    btnLabToggle.isChecked = false;
+                } else {
+                    // Start LAB (DB 연결 시작 및 Lab 고정)
+                    startTimer()
+                }
             }
-            else stopTimer()
+            else {
+                // Stop LAB (DB 연결 중단 및 Lab 횟수 증가)
+                stopTimer()
+            }
         }
 
         btnEngineToggle.setOnCheckedChangeListener {_, isChecked ->
-            if (isChecked) bluetoothManager.sendCarCommand("start")
-            else bluetoothManager.sendCarCommand("stop")
+            if (isChecked) btManager.sendCarCommand("start")
+            else btManager.sendCarCommand("stop")
         }
     }
 
@@ -118,7 +120,6 @@ class MainActivity : AppCompatActivity() {
         // 유효성 검사
         if (totalTimeInSeconds <= 0) {
             Toast.makeText(this, "시간을 입력해주세요.", Toast.LENGTH_SHORT).show()
-            btnLabToggle.isChecked = false
             return
         }
 
@@ -174,10 +175,11 @@ class MainActivity : AppCompatActivity() {
 
     /** Bluetooth
      * initializeBluetooth()          :
+     * onRequestPermissionsResult()   :
      * updateBluetoothStatus(BOOL)    :
      */
-    private fun initializeBluetooth() {
-        bluetoothManager.setCallback(object : DandoorBluetoothManager.BluetoothCallback {
+    private fun setVehicleCallback() {
+        btManager.setVehicleCallback(object : DandoorBTVehicle.VehicleConnectionCallback {
             override fun onConnectionStatusChanged(isConnected: Boolean, deviceName: String?) {
                 updateBluetoothStatus(isConnected)
             }
@@ -191,6 +193,21 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this@MainActivity, error, Toast.LENGTH_SHORT).show()
             }
         })
+    }
+    // 권한 요청 결과 처리
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        btManager.onRequestPermissionResult(requestCode, grantResults) { allGranted ->
+            if (allGranted) {
+                setVehicleCallback()
+            } else {
+                Toast.makeText(this, "권한이 필요합니다", Toast.LENGTH_SHORT).show()
+            }
+        }
     }
     private fun updateBluetoothStatus(isConnected: Boolean) {
         if (isConnected) {
