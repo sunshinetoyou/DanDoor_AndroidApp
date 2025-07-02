@@ -6,7 +6,10 @@ import android.content.Context
 import java.io.OutputStream
 import java.util.UUID
 
-class DandoorBTVehicle(private val context: Context) {
+class DandoorBTVehicle(
+    private val context: Context,
+    private val btAdapter: BluetoothAdapter
+) {
 
     /** 콜백 인터페이스 */
     interface VehicleConnectionCallback {
@@ -21,7 +24,6 @@ class DandoorBTVehicle(private val context: Context) {
         const val TARGET_DEVICE_NAME = "HC-06"
     }
 
-    private var btAdapter: BluetoothAdapter? = null
     private var btSocket: BluetoothSocket? = null
     private var outputStream: OutputStream? = null
     private var isConnected: Boolean = false
