@@ -13,9 +13,9 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.dandoor.ddlib.DandoorBTBeacon
-import com.dandoor.ddlib.DandoorBTManager
-import com.dandoor.ddlib.DandoorBTVehicle
+import com.dandoor.ddlib.bluetooth.DandoorBTBeacon
+import com.dandoor.ddlib.bluetooth.DandoorBTManager
+import com.dandoor.ddlib.bluetooth.DandoorBTVehicle
 import com.dandoor.ddlib.DataBeacon
 import com.google.android.material.progressindicator.CircularProgressIndicator
 

@@ -1,4 +1,4 @@
-package com.dandoor.ddlib
+package com.dandoor.ddlib.bluetooth
 
 import android.app.Activity
 import android.bluetooth.BluetoothAdapter

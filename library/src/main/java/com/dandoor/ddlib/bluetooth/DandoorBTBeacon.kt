@@ -1,4 +1,4 @@
-package com.dandoor.ddlib
+package com.dandoor.ddlib.bluetooth
 
 import android.Manifest
 import android.bluetooth.BluetoothAdapter
@@ -12,6 +12,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.dandoor.ddlib.DataBeacon
 
 
 class DandoorBTBeacon(
