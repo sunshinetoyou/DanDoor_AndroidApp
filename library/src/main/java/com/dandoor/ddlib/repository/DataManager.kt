@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
  * 각각의 테이블의 CRUD 기능을 구현하고, 사용의 편리함을 위해 부수적인 함수를 구현합니다.
  */
 class DataManager(context: Context) {
+    /** Room 패키지 활용 */
     private val db = Room.databaseBuilder(
         context.applicationContext,
         AppDatabase::class.java,
@@ -31,9 +32,14 @@ class DataManager(context: Context) {
 
     private val labDao = db.labDao()
     private val scanDataDao = db.scanDataDao()
+
+    /** 코루틴을 사용해서 비동기 처리를 간편하게 할 수 있음 */
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
+        /** default Beacon Positions (ex)
+         *  이건 경로 선택 방식이 정해지면, 그에 따라 변경될 예정
+         * */
         val beaconPositions = listOf(
             BeaconPosition(x = 0.0, y = 0.0, z = 2.5),
             BeaconPosition(x = 10.0, y = 0.0, z = 2.5),
@@ -73,6 +79,16 @@ class DataManager(context: Context) {
         return labDao.insert(row)
     }
 
+    fun readLabByIdSync(labID: Long) {
+        coroutineScope.launch {
+            readLabById(labID)
+        }
+    }
+    fun readAllLabsSync() {
+        coroutineScope.launch {
+            readAllLabs()
+        }
+    }
     suspend fun readLabById(labID: Long): Lab? = labDao.getLabById(labID)
     suspend fun readAllLabs(): List<Lab> = labDao.getAllLabs()
     suspend fun readLabID(): Long = labDao.getLabID()
@@ -83,6 +99,11 @@ class DataManager(context: Context) {
     fun saveScanDataSync(beaconData: BeaconData) {
         coroutineScope.launch {
             saveScanData(beaconData)
+        }
+    }
+    fun readScanDataSync(id: Long) {
+        coroutineScope.launch {
+            readScanData(id)
         }
     }
     suspend fun saveScanData(beaconData: BeaconData) {
@@ -96,10 +117,5 @@ class DataManager(context: Context) {
     }
     suspend fun readScanData(id: Long): List<ScanData> {
         return scanDataDao.getScanData(id)
-    }
-
-    // Coroutine
-    fun cancelCoroutineScope() {
-        coroutineScope.cancel()
     }
 }
