@@ -5,13 +5,17 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.os.Handler
+import com.dandoor.ddlib.repository.DataManager
 
 /**
  * 실제 사용될 클래스
  * 수행 범위 : [권한 획득], [차량 제어], [비콘 신호 수신]
  * 적용 패턴 : 파사드 패턴
  */
-class DandoorBTManager(private val context: Context) {
+class DandoorBTManager(
+    private val context: Context,
+    dtManager: DataManager
+) {
 
     val btAdapter: BluetoothAdapter by lazy {
         val btManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
@@ -20,7 +24,7 @@ class DandoorBTManager(private val context: Context) {
 
     private val permissionManager = DandoorBTPermission(context)
     private val vehicleManager = DandoorBTVehicle(context, btAdapter)
-    private val beaconManager = DandoorBTBeacon(context, btAdapter)
+    private val beaconManager = DandoorBTBeacon(context, btAdapter, dtManager)
 
     /** For Permission */
     fun checkBTPermission(activity: Activity, callback: (Boolean) -> Unit) {
@@ -46,20 +50,19 @@ class DandoorBTManager(private val context: Context) {
     }
 
     /** For Beacon */
-    fun startPeriodicScan(handler: Handler, callback: DandoorBTBeacon.BeaconScanCallback) {
+    fun startPeriodicScan(handler: Handler) {
         val scanRunnable = object : Runnable {
             override fun run() {
                 beaconManager.stopScan() // 혹시 이전 스캔이 남아있으면 중지
-                beaconManager.startScan(callback)
+                beaconManager.startScan()
                 handler.postDelayed(this, 10_000L)
             }
         }
         handler.post(scanRunnable)
     }
-    fun startScan(callback: DandoorBTBeacon.BeaconScanCallback) {
-        beaconManager.startScan(callback)
+    fun startScan() {
+        beaconManager.startScan()
     }
-
     fun stopScan() {
         beaconManager.stopScan()
     }

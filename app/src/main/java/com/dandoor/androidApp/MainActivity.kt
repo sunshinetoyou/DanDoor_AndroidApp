@@ -2,8 +2,6 @@ package com.dandoor.androidApp
 
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.view.View
 import android.widget.Button
@@ -13,11 +11,14 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.dandoor.ddlib.bluetooth.DandoorBTBeacon
 import com.dandoor.ddlib.bluetooth.DandoorBTManager
 import com.dandoor.ddlib.bluetooth.DandoorBTVehicle
-import com.dandoor.ddlib.DataBeacon
+import com.dandoor.ddlib.bluetooth.BeaconData
+import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -37,15 +38,17 @@ class MainActivity : AppCompatActivity() {
     private var isTimerRunning = false
 
     private lateinit var btManager: DandoorBTManager
-    private val beaconScanHandler = Handler(Looper.getMainLooper())
+    private lateinit var dtManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main)
 
+        // DataManger 초기화
+        dtManager = DataManager(this)
+
         // BluetoothManger 초기화
-        btManager = DandoorBTManager(this)
-        // BT 권한 체크 및 요청
+        btManager = DandoorBTManager(this, dtManager)
         btManager.checkBTPermission(this) {granted ->
             if (granted) {
                 setVehicleCallback()
@@ -56,17 +59,6 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         setupBtnListeners()
-
-        // 스캔 시작
-        btManager.startScan(object : DandoorBTBeacon.BeaconScanCallback {
-            override fun onScanResult(data: DataBeacon) {
-                Log.d("MainActivity", "발견: ${data.timestamp}, RSSI: ${data.beacon_name}, RSSI: ${data.beacon_rssi}")
-                // TODO DATA Manager에게 넘겨서 데이터 저장
-            }
-            override fun onScanFinished() {
-                Log.d("MainActivity", "스캔 종료")
-            }
-        })
     }
 
     /** 뷰 컴포넌트 초기화 (main_activity의 컴포넌트와 연결) */
@@ -103,17 +95,18 @@ class MainActivity : AppCompatActivity() {
                     Toast.makeText(this, "시간을 입력해주세요.", Toast.LENGTH_SHORT).show()
                     btnLabToggle.isChecked = false;
                 } else {
-                    // TODO Start LAB (DB 연결 시작 및 Lab 고정)
+                    dtManager.createLabDefaultSync()
+                    btManager.startScan()
                     startTimer()
                 }
             }
             else {
-                // TODO Stop LAB (DB 연결 중단 및 Lab 횟수 증가)
                 stopTimer()
+                btManager.stopScan()
             }
         }
 
-        btnEngineToggle.setOnCheckedChangeListener {_, isChecked ->
+        btnEngineToggle.setOnCheckedChangeListener { _, isChecked ->
             if (isChecked) btManager.sendCarCommand("start")
             else btManager.sendCarCommand("stop")
         }
