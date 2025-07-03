@@ -8,9 +8,14 @@ import android.os.Handler
 import com.dandoor.ddlib.repository.DataManager
 
 /**
- * 실제 사용될 클래스
+ * 실제 사용자가 사용하는 클래스
  * 수행 범위 : [권한 획득], [차량 제어], [비콘 신호 수신]
- * 적용 패턴 : 파사드 패턴
+ *
+ * 목적: 하위 구현 요소들을 묶어서 사용자가 편하게 사용하게 하기 위함.
+ *
+ * (+) checkBTPermission(): BT 권한 확인 및 획득
+ * (+) ...(추후에 정리)
+ *
  */
 class DandoorBTManager(
     private val context: Context,

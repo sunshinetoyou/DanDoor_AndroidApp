@@ -1,19 +1,14 @@
 package com.dandoor.ddlib.repository
 
 import android.content.Context
-import android.util.Log
-import android.widget.Toast
-import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
-import com.dandoor.ddlib.bluetooth.BeaconData
-import com.dandoor.ddlib.bluetooth.DandoorBTBeacon
+import com.dandoor.ddlib.bluetooth.model.BeaconData
 import com.dandoor.ddlib.data.AppDatabase
 import com.dandoor.ddlib.data.entity.BeaconPosition
 import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.data.entity.ScanData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 
 /** Data Manager

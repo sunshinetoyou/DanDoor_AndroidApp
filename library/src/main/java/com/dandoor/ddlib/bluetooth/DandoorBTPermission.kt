@@ -7,7 +7,8 @@ import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-/**
+
+/** BTPermission
  * 블루투스 권한을 처리하는 클래스
  */
 class DandoorBTPermission(private val context: Context) {

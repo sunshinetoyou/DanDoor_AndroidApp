@@ -2,7 +2,6 @@ package com.dandoor.androidApp
 
 import android.os.Bundle
 import android.os.CountDownTimer
-import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
@@ -11,14 +10,10 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.lifecycleScope
-import com.dandoor.ddlib.bluetooth.DandoorBTBeacon
 import com.dandoor.ddlib.bluetooth.DandoorBTManager
 import com.dandoor.ddlib.bluetooth.DandoorBTVehicle
-import com.dandoor.ddlib.bluetooth.BeaconData
 import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
