@@ -12,12 +12,18 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.dandoor.ddlib.bluetooth.model.BeaconData
 import com.dandoor.ddlib.repository.DataManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
-
+/** BTBeacon
+ *
+ *  비콘에 대해 스캐닝 실시 -> DataManager
+ *
+ *  onScanResult 콜백 함수를 통해 데이터 전달
+ *
+ *  (+) startScan(): 스캐닝 시작
+ *  (+) stopScan():  스캐닝 정지
+ */
 class DandoorBTBeacon(
     private val context: Context,
     btAdapter: BluetoothAdapter,
@@ -37,6 +43,7 @@ class DandoorBTBeacon(
                 dtManager.saveScanDataSync(beaconData)
                 Log.d("BeaconScan", "비콘 발견: ${result.device.name}, RSSI: ${result.rssi}, bytes: ${result.scanRecord}")
             } catch (_: SecurityException) {
+                /** device.name 빨간 줄 방지용 */
             }
         }
         override fun onScanFailed(errorCode: Int) {
