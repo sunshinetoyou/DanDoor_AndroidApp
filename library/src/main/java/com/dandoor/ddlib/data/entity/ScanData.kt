@@ -5,6 +5,19 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/** SCAN_DATA
+ *
+ *    |----------|-------------|--------------|----------|----------------|
+ *    |    id    |  timestamp  |   beaconID   |   rssi   |   lid(labID)   | <- Lab's labID와 연결
+ *    |__________|_____________|______________|__________|________________|
+ *    
+ *    PK(Primary Key): id
+ *    FK(Foreign Key): lid <- (Lab's) labID
+ *
+ *    스캔하여 획득한 beacon_data를 저장하며, 고유 식별자(id)와 실험 식별자(lid)를 부여함.
+ *
+ *    실험 번호(labID)에 따라 실험 결과를 쿼리할 수 있게 만듦
+ */
 @Entity(
     tableName = "scan_data",
     foreignKeys = [ForeignKey(

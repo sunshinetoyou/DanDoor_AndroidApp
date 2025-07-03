@@ -6,6 +6,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.dandoor.ddlib.data.entity.Lab
 
+/** LAB_DAO
+ * Lab 테이블에 접근하기 위한 API를 정의함
+ */
 @Dao
 interface LabDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
