@@ -1,5 +1,6 @@
 package com.dandoor.androidApp
 
+import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
@@ -54,6 +55,14 @@ class MainActivity : AppCompatActivity() {
 
         initViews()
         setupBtnListeners()
+        // 버튼 누르면 SecondActivity로 이동
+        val myButton = findViewById<Button>(R.id.butt)
+        myButton.setOnClickListener {
+            val testarray = intArrayOf(1,2,3,4,5,6,7,8,9)  // 넘겨주는 값 예시로 배열
+            val intent = Intent(this, ResultActivity::class.java)
+            intent.putExtra("intArray", testarray)  // 값 넘겨주기
+            startActivity(intent)
+        }
     }
 
     /** 뷰 컴포넌트 초기화 (main_activity의 컴포넌트와 연결) */
