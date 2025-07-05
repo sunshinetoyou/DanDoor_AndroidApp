@@ -1,6 +1,6 @@
 package com.dandoor.ddlib.data
 
-import BeaconPositionConverter
+import PositionConverter
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -12,7 +12,7 @@ import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.data.entity.ScanData
 
 @Database(entities = [Lab::class, ScanData::class, EstiData::class], version = 2)
-@TypeConverters(BeaconPositionConverter::class)
+@TypeConverters(PositionConverter::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun labDao(): LabDao
     abstract fun scanDataDao(): ScanDataDao

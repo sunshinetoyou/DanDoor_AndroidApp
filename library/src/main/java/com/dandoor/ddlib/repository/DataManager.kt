@@ -49,7 +49,7 @@ class DataManager(context: Context) {
             speed = 0.0,
             pathLength = 2.0,
             startPos = Position(0.0, 0.0),
-            windowStart = 250L
+            windowSize = 250L
         )
     }
 
@@ -150,7 +150,7 @@ class DataManager(context: Context) {
         }
 
         // 2. 시간 윈도우 단위로 그룹핑
-        val groupedByWindow = scanDataList.groupBy { it.timestamp / windowSize }
+        val groupedByWindow = scanDataList.groupBy { it.timestamp / defualtConfig.windowSize }
 
         // 3. 각 윈도우 내에서 beaconID별로 그룹핑 후 RSSI 평균 계산
         return groupedByWindow.map { (windowIdx, windowData) ->
@@ -158,7 +158,7 @@ class DataManager(context: Context) {
                 .groupBy { it.beaconID }
                 .mapValues { (_, scans) -> scans.map { it.rssi }.average() }
             TimeWindowBeaconRssi(
-                windowStart = windowIdx * windowSize,
+                windowStart = windowIdx * defualtConfig.windowSize,
                 beaconRssi = beaconAverages
             )
         }.sortedBy { it.windowStart }

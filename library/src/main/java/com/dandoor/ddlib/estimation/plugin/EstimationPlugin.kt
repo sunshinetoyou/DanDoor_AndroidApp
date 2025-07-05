@@ -4,14 +4,13 @@ import com.dandoor.ddlib.data.entity.EstimationSummary
 import com.dandoor.ddlib.data.entity.Position
 import com.dandoor.ddlib.estimation.model.TimeWindowBeaconRssi
 import com.dandoor.ddlib.data.entity.config
-import com.dandoor.ddlib.repository.DataManager
 
 interface EstimationPlugin {
     val name: String
 
     fun calcEstiPos(input: TimeWindowBeaconRssi): Position
     fun calcRealPos(input: config): Position {
-        val t = (input.windowStart - input.startTime) / 1000.0 // 초 단위
+        val t = (input.windowSize - input.startTime) / 1000.0 // 초 단위
         val totalLength = 4 * input.pathLength
         val d = (input.speed * t) % totalLength
 
@@ -33,7 +32,7 @@ interface EstimationPlugin {
     fun calc(input: List<TimeWindowBeaconRssi>, config: config): List<EstimationSummary> {
         return input.map { window ->
             val estiPos = calcEstiPos(window)
-            val realPos = calcRealPos(config.copy(windowStart = window.windowStart))
+            val realPos = calcRealPos(config.copy(windowSize = window.windowStart))
             val error = calcError(estiPos, realPos)
             EstimationSummary(
                 timestamp = window.windowStart,

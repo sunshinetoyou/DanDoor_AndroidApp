@@ -24,11 +24,3 @@ data class EstiData(
     val lid: Long,
     val method: String
 )
-
-data class EstimationSummary(
-    val timestamp: Long,
-    val estiPos: Position,
-    val realPos: Position,
-    val error: Double,
-    val method: String
-)
