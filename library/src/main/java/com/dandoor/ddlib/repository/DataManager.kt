@@ -4,12 +4,16 @@ import android.content.Context
 import androidx.room.Room
 import com.dandoor.ddlib.bluetooth.model.BeaconData
 import com.dandoor.ddlib.data.AppDatabase
-import com.dandoor.ddlib.data.entity.BeaconPosition
+import com.dandoor.ddlib.data.entity.EstiData
 import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.data.entity.ScanData
+import com.dandoor.ddlib.data.entity.Position
+import com.dandoor.ddlib.data.entity.config
+import com.dandoor.ddlib.estimation.model.TimeWindowBeaconRssi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 /** Data Manager
  *
@@ -27,29 +31,35 @@ class DataManager(context: Context) {
 
     private val labDao = db.labDao()
     private val scanDataDao = db.scanDataDao()
+    private val estiDataDao = db.estiDataDao()
 
     /** 코루틴을 사용해서 비동기 처리를 간편하게 할 수 있음 */
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
     companion object {
         /** default Beacon Positions (ex)
-         *  이건 경로 선택 방식이 정해지면, 그에 따라 변경될 예정
          * */
         val beaconPositions = listOf(
-            BeaconPosition(x = 0.0, y = 0.0, z = 2.5),
-            BeaconPosition(x = 10.0, y = 0.0, z = 2.5),
-            BeaconPosition(x = 0.0, y = 8.0, z = 2.5),
-            BeaconPosition(x = 10.0, y = 8.0, z = 2.5)
+            Position(x = 0.0, y = 0.0, z = 0.0),
+            Position(x = 6.0, y = 0.0, z = 0.0),
+            Position(x = 6.0, y = 6.0, z = 0.0),
+            Position(x = 0.0, y = 6.0, z = 0.0)
+        )
+        val defualtConfig = config(
+            speed = 0.0,
+            pathLength = 2.0,
+            startPos = Position(0.0, 0.0),
+            windowStart = 250L
         )
     }
 
-    // Lab Entity CRUD
+    /** Lab Entity CRUD */
     fun createLabDefaultSync() {
         coroutineScope.launch {
             createLabDefault()
         }
     }
-    suspend fun createLab(position: List<BeaconPosition>, alias: String?): Long {
+    suspend fun createLab(position: List<Position>, alias: String?): Long {
         val lab = Lab(
             beaconPositions = position,
             createdAt = System.currentTimeMillis(),
@@ -90,7 +100,7 @@ class DataManager(context: Context) {
 //    suspend fun updateLab(lab: Lab) = labDao.updateLab(lab)
 //    suspend fun deleteLab(lab: Lab) = labDao.deleteLab(lab)
 
-    // ScanData Entity CRUD
+    /** ScanData Entity CRUD */
     fun saveScanDataSync(beaconData: BeaconData) {
         coroutineScope.launch {
             saveScanData(beaconData)
@@ -112,5 +122,45 @@ class DataManager(context: Context) {
     }
     suspend fun readScanData(id: Long): List<ScanData> {
         return scanDataDao.getScanData(id)
+    }
+
+    /** EstiData Entity CRUD */
+    fun saveEstiDataSync(estiData: EstiData) {
+        coroutineScope.launch {
+            estiDataDao.insertEstiData(estiData)
+        }
+    }
+    fun saveAllEstiDataSync(results: List<EstiData>) {
+        coroutineScope.launch {
+            estiDataDao.insertAll(results)
+        }
+    }
+    fun readEstiDataSync(labId: Long, method: String) {
+        coroutineScope.launch {
+            estiDataDao.getResultsByLabAndAlgorithm(labId, method)
+        }
+    }
+
+    /** Special */
+    /** 시간 윈도우(0.5)에 따른 각 비콘의 평균 RSSI 값 도출*/
+    fun getWindowedBeaconRssi(labId: Long): List<TimeWindowBeaconRssi> {
+        // 1. LabID로 ScanData 쿼리
+        val scanDataList = runBlocking {
+            readScanData(labId)
+        }
+
+        // 2. 시간 윈도우 단위로 그룹핑
+        val groupedByWindow = scanDataList.groupBy { it.timestamp / windowSize }
+
+        // 3. 각 윈도우 내에서 beaconID별로 그룹핑 후 RSSI 평균 계산
+        return groupedByWindow.map { (windowIdx, windowData) ->
+            val beaconAverages = windowData
+                .groupBy { it.beaconID }
+                .mapValues { (_, scans) -> scans.map { it.rssi }.average() }
+            TimeWindowBeaconRssi(
+                windowStart = windowIdx * windowSize,
+                beaconRssi = beaconAverages
+            )
+        }.sortedBy { it.windowStart }
     }
 }
