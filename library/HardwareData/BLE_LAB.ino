@@ -1,10 +1,12 @@
-#define LEFT_IR_PIN A0
-#define RIGHT_IR_PIN A1
+#define LEFT_IR_PIN A0 //밝으면 숫자가 작은 상태
+#define RIGHT_IR_PIN A5
 
-#define MOTER1_SPEED 135 // PORT 4 
-#define MOTER2_SPEED 90  // PORT 1
+#define MOTER1_SPEED 135 // PORT 4 (3:2 비율)
+#define MOTER2_SPEED 90// PORT 1
 
-#define IRVALUE 400
+//감지값이 서로 다름
+#define IRVALUE_RIGHT 1000 
+#define IRVALUE_LEFT 400
 #define CYCLEDISTANCE 760  // 1바퀴 이동 거리 (cm)
 
 #include <AFMotor.h>
@@ -29,11 +31,12 @@ unsigned long whiteStartTime = 0;
 unsigned long blackStartTime = 0;
 
 void setup() {
-  mySerial.begin(9600);
-  Serial.begin(9600);
+  mySerial.begin(9600); //블루투스 장치와 통신 
+  Serial.begin(9600); //USB와 아두이노 간 통신
 }
 
 void loop() {
+  // 블루투스 기기로 부터 정보 받기
   if (mySerial.available()) {
     ms = mySerial.readStringUntil('c');
     ms.trim();
@@ -69,12 +72,14 @@ void loop() {
     sstop();
   }
 }
-
+/* 값이 작으면 검정 -> detect : 1
+   값이 크면 흰색   -> detect : 0
+*/
 void driving() {
   int leftIR = analogRead(LEFT_IR_PIN);
   int rightIR = analogRead(RIGHT_IR_PIN);
-  bool leftDetect = (leftIR < IRVALUE);   // 검정 감지
-  bool rightDetect = (rightIR < IRVALUE);
+  bool leftDetect = (leftIR > IRVALUE_LEFT);   // 검정 감지
+  bool rightDetect = (rightIR > IRVALUE_RIGHT); // 검정 감지
 
   unsigned long now = millis();
 
@@ -98,7 +103,7 @@ void driving() {
     else {
       if (whiteStartTime == 0) whiteStartTime = now;
 
-      if (now - whiteStartTime > 500) {
+      if (now - whiteStartTime > 200) {
         state = "turning";
         whiteStartTime = 0;
       }
@@ -129,6 +134,12 @@ void driving() {
       blackStartTime = 0;
     }
   }
+  Serial.print("  leftDetect: "); Serial.print(leftDetect);
+  Serial.print("  rightDetect: "); Serial.print(rightDetect);
+  Serial.print("  leftValue: "); Serial.print(leftIR);
+  Serial.print("  rightValue: "); Serial.print(rightIR);
+  Serial.print("  State: "); Serial.println(state);
+  delay(100);
 }
 
 void forward() {
@@ -139,15 +150,15 @@ void forward() {
 }
 
 void turnLeftSlight() {
-  motor1.setSpeed(60);  // 왼쪽 느리게
-  motor2.setSpeed(MOTER2_SPEED);
+  motor1.setSpeed(MOTER1_SPEED);  // 왼쪽 느리게
+  motor2.setSpeed(30);
   motor1.run(FORWARD);
   motor2.run(FORWARD);
 }
 
 void turnRightSlight() {
-  motor1.setSpeed(MOTER1_SPEED);
-  motor2.setSpeed(60);  // 오른쪽 느리게
+  motor1.setSpeed(10);
+  motor2.setSpeed(MOTER2_SPEED); 
   motor1.run(FORWARD);
   motor2.run(FORWARD);
 }
@@ -163,3 +174,4 @@ void sstop() {
   motor1.run(RELEASE);
   motor2.run(RELEASE);
 }
+
