@@ -1,8 +1,13 @@
+/* 
+실험 시작 버튼 누르면 비콘 데이터 전송
+실험 종료 버튼 누르면  자동차거리 데이터 전송
+*/
 #define LEFT_IR_PIN A0 //밝으면 숫자가 작은 상태
 #define RIGHT_IR_PIN A5
 
+//모터 속도를 변경하면 속력도 변경해야함.
 #define MOTER1_SPEED 135 // PORT 4 (3:2 비율)
-#define MOTER2_SPEED 90// PORT 1
+#define MOTER2_SPEED (MOTER1_SPEED * 2/3) // PORT 1
 
 //감지값이 서로 다름
 #define IRVALUE_RIGHT 1000 
@@ -24,9 +29,8 @@ String state = "forward";
 unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
 unsigned long lastSendTime = 0;
-float carSpeed = 33.0 / CYCLEDISTANCE;
+float carSpeed = 33.0 / CYCLEDISTANCE; //hardcoding
 
-int turningCount = 0;
 unsigned long whiteStartTime = 0;
 unsigned long blackStartTime = 0;
 
@@ -44,10 +48,18 @@ void loop() {
     if (ms == "start") {
       engine_flag = true;
       state = "forward";
-      startTime = millis();
-      lastSendTime = millis();
-      turningCount = 0;
+      startTime = millis(); //시작 시간 측정
+      Serial.println("출발~");
     } else if (ms == "stop") {
+      elapsedTime = millis() - startTime; // 이동시간 측정
+      float distance = carSpeed * elapsedTime; //거리 측정
+
+      mySerial.print("이동거리 : ");
+      mySerial.print(distance);
+      mySerial.println("cm");
+
+      Serial.println(distance);
+      Serial.println("멈춰~"); //arduino IDE 상
       engine_flag = false;
       elapsedTime = 0;
     }
@@ -56,18 +68,6 @@ void loop() {
 
   if (engine_flag) {
     driving();
-
-    unsigned long now = millis();
-    if (now - lastSendTime >= 3000) {
-      elapsedTime = (now - startTime) / 1000;
-      float distance = carSpeed * elapsedTime;
-
-      mySerial.print("이동 거리: ");
-      mySerial.print(distance);
-      mySerial.println(" cm");
-
-      lastSendTime = now;
-    }
   } else {
     sstop();
   }
@@ -75,6 +75,7 @@ void loop() {
 /* 값이 작으면 검정 -> detect : 1
    값이 크면 흰색   -> detect : 0
 */
+
 void driving() {
   int leftIR = analogRead(LEFT_IR_PIN);
   int rightIR = analogRead(RIGHT_IR_PIN);
@@ -120,15 +121,6 @@ void driving() {
       if (now - blackStartTime > 100) {
         state = "forward";
         blackStartTime = 0;
-        turningCount++;
-
-        Serial.print("회전 횟수: ");
-        Serial.println(turningCount);
-
-        if (turningCount % 4 == 0 && elapsedTime > 0) {
-          carSpeed = (float)CYCLEDISTANCE / elapsedTime;
-          startTime = millis();
-        }
       }
     } else {
       blackStartTime = 0;
@@ -150,7 +142,7 @@ void forward() {
 }
 
 void turnLeftSlight() {
-  motor1.setSpeed(MOTER1_SPEED);  // 왼쪽 느리게
+  motor1.setSpeed(MOTER1_SPEED* 2/3);  // 왼쪽 느리게
   motor2.setSpeed(30);
   motor1.run(FORWARD);
   motor2.run(FORWARD);
@@ -165,7 +157,7 @@ void turnRightSlight() {
 
 void right() {
   motor1.setSpeed(0);
-  motor2.setSpeed(MOTER2_SPEED);
+  motor2.setSpeed(MOTER2_SPEED*1/2);
   motor1.run(BACKWARD);
   motor2.run(FORWARD);
 }
