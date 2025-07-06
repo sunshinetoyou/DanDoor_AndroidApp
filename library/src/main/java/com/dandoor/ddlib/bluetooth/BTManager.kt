@@ -7,15 +7,23 @@ import android.content.Context
 import android.os.Handler
 import com.dandoor.ddlib.repository.DataManager
 
-/**
- * 실제 사용자가 사용하는 클래스
- * 수행 범위 : [권한 획득], [차량 제어], [비콘 신호 수신]
+/** BTManger
+ * 기능 범위 : [권한 획득], [차량 제어], [비콘 신호 수신]
  *
- * 목적: 하위 구현 요소들을 묶어서 사용자가 편하게 사용하게 하기 위함.
+ * [권한 획득]
+ * F?. 핸드폰 블루투스 권한 확인       : checkPermission(activity, callback)
  *
- * (+) checkBTPermission(): BT 권한 확인 및 획득
- * (+) ...(추후에 정리)
+ * [차량 제어]
+ * F?. 차량 콜백 함수 등록            : setVehicleCallback(callback)
+ * F?. 차량 블루투스 연결 ( 페어링 )   : connectToCar()
+ * F?. 차량 블루투스 연결 해제         : disconnectedFromCar()                            (x)
+ * F2~3. 차량 명령어 전송             : sendCarCommand(string)
+ *      command: string { start, stop, toggle }
  *
+ * [비콘 신호 수신]
+ * F1. 비콘_데이터 스캔 시작            : startScan()
+ * F?. 비콘 데이터 스캔 정지            : stopScan()
+ * F?. 주기적인 비콘_데이터 스캔 시작     : startPeriodicScan()                             (x)
  */
 class BTManager(
     private val context: Context,
