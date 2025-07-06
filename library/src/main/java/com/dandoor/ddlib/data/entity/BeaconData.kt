@@ -1,4 +1,4 @@
-package com.dandoor.ddlib.bluetooth.model
+package com.dandoor.ddlib.data.entity
 
 /** BEACON_DATA
  *
