@@ -6,6 +6,9 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.dandoor.ddlib.data.entity.EstiData
 
+/** ESTI_DATA_DAO
+ * esti_data 테이블에 접근하기 위한 API를 정의함
+ */
 @Dao
 interface EstiDataDao {
     // 평가 결과 저장 (단일)
