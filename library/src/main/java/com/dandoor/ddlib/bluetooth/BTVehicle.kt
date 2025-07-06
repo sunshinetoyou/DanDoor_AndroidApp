@@ -6,7 +6,7 @@ import android.content.Context
 import java.io.OutputStream
 import java.util.UUID
 
-class DandoorBTVehicle(
+class BTVehicle(
     private val context: Context,
     private val btAdapter: BluetoothAdapter
 ) {
