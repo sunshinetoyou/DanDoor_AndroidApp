@@ -17,7 +17,7 @@ import com.dandoor.ddlib.repository.DataManager
  * (+) ...(추후에 정리)
  *
  */
-class DandoorBTManager(
+class BTManager(
     private val context: Context,
     dtManager: DataManager
 ) {
@@ -27,9 +27,9 @@ class DandoorBTManager(
         btManager.adapter
     }
 
-    private val permissionManager = DandoorBTPermission(context)
-    private val vehicleManager = DandoorBTVehicle(context, btAdapter)
-    private val beaconManager = DandoorBTBeacon(context, btAdapter, dtManager)
+    private val permissionManager = BTPermission(context)
+    private val vehicleManager = BTVehicle(context, btAdapter)
+    private val beaconManager = BTBeacon(context, btAdapter, dtManager)
 
     /** For Permission */
     fun checkBTPermission(activity: Activity, callback: (Boolean) -> Unit) {
@@ -41,7 +41,7 @@ class DandoorBTManager(
     }
 
     /** For Vehicle */
-    fun setVehicleCallback(callback: DandoorBTVehicle.VehicleConnectionCallback) {
+    fun setVehicleCallback(callback: BTVehicle.VehicleConnectionCallback) {
         vehicleManager.vehicleConnectionCallback = callback
     }
     fun connectToCar() {
