@@ -9,6 +9,19 @@ import com.dandoor.ddlib.estimation.model.TimeWindowBeaconRssi
 import com.dandoor.ddlib.repository.DataManager
 import com.dandoor.ddlib.repository.DataManager.Companion.defualtConfig
 
+/** EstimationPluginManager
+ * 기능 범위 : [플러그인 형식 지원], [차량 제어], [비콘 신호 수신]
+ *
+ * [플러그인 형식 지원]
+ * F?. 플러그인 등록                      : register
+ * F?. 플러그인 해제                      : unregister
+ * F?. 플러그인 모두 가져오기               : getAVailablePlugins()
+ *
+ * [평가&데이터 저장]
+ * F?. 단일 평가 실행                      : calcEstiPos
+ * F?. 디중 평가 실행                      : calc
+ * F?. 평가&저장 함수 실행                  : calcAndSave
+ */
 class EstimationPluginManager(
     private val dtManager: DataManager
 ) {
@@ -21,6 +34,8 @@ class EstimationPluginManager(
     fun unregister(plugin: EstimationPlugin) {
         plugins.remove(plugin)
     }
+
+    fun getAvailablePlugins(): List<String> = plugins.map { it.name }
 
     fun calcEstiPos(input: TimeWindowBeaconRssi, pluginName: String = "Trilateration"): Position? {
         val plugin = plugins.find { it.name == pluginName }
@@ -60,6 +75,4 @@ class EstimationPluginManager(
 
         dtManager.saveAllEstiDataSync(estiDataList)
     }
-
-    fun getAvailablePlugins(): List<String> = plugins.map { it.name }
 }

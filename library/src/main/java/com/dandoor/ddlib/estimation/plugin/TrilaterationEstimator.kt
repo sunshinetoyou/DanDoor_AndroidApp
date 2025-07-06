@@ -5,6 +5,13 @@ import com.dandoor.ddlib.estimation.model.TimeWindowBeaconRssi
 import com.dandoor.ddlib.repository.DataManager
 import com.dandoor.ddlib.repository.DataManager.Companion.beaconPositions
 
+
+/**
+ * 삼변측량 알고리즘으로 구현한 평가 클래스
+ *
+ * 평가 함수 구현을 위해 trilaterate와 rssiToDistance 함수가 추가로 만들어졌으며
+ * 최종적으로 calcEstiPos(평가함수)로 추정 위치를 반환한다.
+ */
 class TrilaterationEstimator(
     override val name: String = "Trilateration"
 ) : EstimationPlugin {
@@ -12,6 +19,7 @@ class TrilaterationEstimator(
      * 삼변측량 공식으로 위치 추정
      * @param beaconPositions: 비콘의 실제 위치 리스트 (3개)
      * @param distances: 각 비콘까지의 거리 리스트 (3개, RSSI → 거리 변환 필요)
+     *
      */
     fun trilaterate(
         beaconPositions: List<Position>,
