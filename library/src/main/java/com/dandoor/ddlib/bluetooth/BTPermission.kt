@@ -11,7 +11,7 @@ import androidx.core.content.ContextCompat
 /** BTPermission
  * 블루투스 권한을 처리하는 클래스
  */
-class DandoorBTPermission(private val context: Context) {
+class BTPermission(private val context: Context) {
 
     val REQUEST_BLUETOOTH_PERMISSIONS = 1001
 

@@ -24,7 +24,7 @@ import com.dandoor.ddlib.repository.DataManager
  *  (+) startScan(): 스캐닝 시작
  *  (+) stopScan():  스캐닝 정지
  */
-class DandoorBTBeacon(
+class BTBeacon(
     private val context: Context,
     btAdapter: BluetoothAdapter,
     private val dtManager: DataManager  /** 비콘 스캔 행위를 dtManger와 바로 연결하기 위해 의존성 주입 */

@@ -11,8 +11,8 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.dandoor.ddlib.bluetooth.DandoorBTManager
-import com.dandoor.ddlib.bluetooth.DandoorBTVehicle
+import com.dandoor.ddlib.bluetooth.BTManager
+import com.dandoor.ddlib.bluetooth.BTVehicle
 import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
 
@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private var totalTimeInSeconds = 0
     private var isTimerRunning = false
 
-    private lateinit var btManager: DandoorBTManager
+    private lateinit var btManager: BTManager
     private lateinit var dtManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -44,7 +44,7 @@ class MainActivity : AppCompatActivity() {
         dtManager = DataManager(this)
 
         // BluetoothManger 초기화
-        btManager = DandoorBTManager(this, dtManager)
+        btManager = BTManager(this, dtManager)
         btManager.checkBTPermission(this) {granted ->
             if (granted) {
                 setVehicleCallback()
@@ -193,7 +193,7 @@ class MainActivity : AppCompatActivity() {
      * updateBluetoothStatus(BOOL)    :
      */
     private fun setVehicleCallback() {
-        btManager.setVehicleCallback(object : DandoorBTVehicle.VehicleConnectionCallback {
+        btManager.setVehicleCallback(object : BTVehicle.VehicleConnectionCallback {
             override fun onConnectionStatusChanged(isConnected: Boolean, deviceName: String?) {
                 updateBluetoothStatus(isConnected)
             }
