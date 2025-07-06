@@ -8,7 +8,7 @@ package com.dandoor.ddlib.estimation.model
  *      Component                       사용되는 데이터 형식
  *
  *         비콘
- *                      com.dandoor.ddlib.bluetooth.model.BeaconData
+ *                      com.dandoor.ddlib.data.entity.BeaconData
  *          ↓           비콘_데이터(beacon_name: String, beacon_rssi: Int, timestamp: Long)
  *
  *      내부 저장소       com.dandoor.ddlib.data.entity.ScanData

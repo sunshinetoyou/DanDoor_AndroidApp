@@ -12,7 +12,7 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.dandoor.ddlib.bluetooth.model.BeaconData
+import com.dandoor.ddlib.data.entity.BeaconData
 import com.dandoor.ddlib.repository.DataManager
 
 /** BTBeacon

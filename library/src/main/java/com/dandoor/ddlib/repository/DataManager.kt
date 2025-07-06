@@ -2,7 +2,7 @@ package com.dandoor.ddlib.repository
 
 import android.content.Context
 import androidx.room.Room
-import com.dandoor.ddlib.bluetooth.model.BeaconData
+import com.dandoor.ddlib.data.entity.BeaconData
 import com.dandoor.ddlib.data.AppDatabase
 import com.dandoor.ddlib.data.entity.EstiData
 import com.dandoor.ddlib.data.entity.Lab
