@@ -1,47 +1,43 @@
 package com.dandoor.androidApp
 
 import android.os.Bundle
+import android.widget.LinearLayout
 import android.widget.SeekBar
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import androidx.drawerlayout.widget.DrawerLayout
 
 // ResultActivity 클래스 정의
 class ResultActivity : AppCompatActivity() {
+
+    // UI component
+    private lateinit var toolbar : Toolbar
+
+    // Data
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.result)
+        initViews()
 
+        // 1. Intent로부터 값 받기
+        val labID = intent.getLongExtra("labID", -1L)
+        val alias = intent.getStringExtra("alias") ?: "No Alias"
+        val createdAt = intent.getLongExtra("createdAt", -1L)
+
+        // 2. 예쁘게 출력 (예시)
         val resultView = findViewById<TextView>(R.id.resultTextView)
-        val seekBar = findViewById<SeekBar>(R.id.seekBar)
-        val countView = findViewById<TextView>(R.id.countLabel)
-
-        // intent로 넘겨 받은 값 활용
-        val receivedArray = intent.getIntArrayExtra("intArray")
-        if(receivedArray != null){
-            // seekbar 설정
-            seekBar.max = receivedArray.size
-            seekBar.progress = receivedArray.size.coerceAtMost(1)
-
-            updateDisplayedData(receivedArray, seekBar.progress, resultView)
-
-            seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    updateDisplayedData(receivedArray, progress, resultView)
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            })
-        }
-        else
-            resultView.text = "넘겨 받지 못함"
+        resultView.text = """
+            Lab 정보
+            ID: $labID
+            Alias: $alias
+            Created: $createdAt
+        """.trimIndent()
     }
-    private fun updateDisplayedData(
-        array: IntArray,
-        count: Int,
-        resultView: TextView
-    ) {
-        val limited = array.take(count)
-        resultView.text = "넘겨 받은 값: ${limited.joinToString(", ")}"
+
+    private fun initViews() {
+        toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.title = "Dandoor_App Lab" // 원하는 타이틀로 변경
     }
 }

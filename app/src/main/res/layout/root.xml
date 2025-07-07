@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/purple_200"
+            android:background="@color/purple_700"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
         <include layout="@layout/main" />
