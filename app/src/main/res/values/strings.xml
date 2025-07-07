@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">DanDoor_APP</string>
+    <string name="navigation_drawer_open">사이드바 열기</string>
+    <string name="navigation_drawer_close">사이드바 닫기</string>
 </resources>
