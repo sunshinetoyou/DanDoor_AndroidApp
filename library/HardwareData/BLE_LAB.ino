@@ -29,7 +29,7 @@ String state = "forward";
 unsigned long startTime = 0;
 unsigned long elapsedTime = 0;
 unsigned long lastSendTime = 0;
-float carSpeed = 33.0 / CYCLEDISTANCE; //hardcoding
+float carSpeed = 33.0 / CYCLEDISTANCE; //hardcoding -> 속력에 따라 실험적으로 설정한 숫자임으로 1바퀴 주행 시간인 33은 속력변화시 따로 설정 필요
 
 unsigned long whiteStartTime = 0;
 unsigned long blackStartTime = 0;
