@@ -15,10 +15,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.dandoor.ddlib.bluetooth.BTManager
 import com.dandoor.ddlib.bluetooth.BTVehicle
+import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -215,42 +218,35 @@ class MainActivity : AppCompatActivity() {
      * Side Bar
      *
      */
-    data class MenuItem(val title: String)
-    fun getDynamicMenuItems(): List<MenuItem> {
-        // 실제로는 서버/DB 등에서 받아온 데이터를 반환
-        return listOf(
-            MenuItem("사이드 메뉴 1"),
-            MenuItem("사이드 메뉴 2"),
-            MenuItem("동적 메뉴 추가")
-        )
-    }
     fun setDrawerListener() {
         drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
-                // 필요시 구현
-            }
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
 
             override fun onDrawerOpened(drawerView: View) {
-                // 사이드바가 열릴 때마다 메뉴 갱신
-                sidebarMenu.removeAllViews()
-                // 예시: 동적으로 메뉴 추가
-                for (item in getDynamicMenuItems()) {
-                    val menuItem = TextView(this@MainActivity).apply {
-                        text = item.title
-                        setPadding(16, 16, 16, 16)
-                        setOnClickListener { /* 메뉴 클릭 동작 */ }
+                lifecycleScope.launch {
+                    val labs = dtManager.readAllLabs()
+                    sidebarMenu.removeAllViews()
+                    for (lab in labs) {
+                        val menuItem = TextView(drawerView.context).apply {
+                            text = "ID: ${lab.labID}\nAlias: ${lab.alias}\nCreated: ${lab.createdAt}"
+                            setPadding(16, 16, 16, 16)
+                            setOnClickListener {
+                                // Intent로 ResultActivity로 이동
+                                val intent = Intent(this@MainActivity, ResultActivity::class.java)
+                                intent.putExtra("labID", lab.labID)
+                                intent.putExtra("alias", lab.alias)
+                                intent.putExtra("createdAt", lab.createdAt)
+                                startActivity(intent)
+                            }
+                        }
+                        sidebarMenu.addView(menuItem)
                     }
-                    sidebarMenu.addView(menuItem)
                 }
             }
 
-            override fun onDrawerClosed(drawerView: View) {
-                // 필요시 구현
-            }
+            override fun onDrawerClosed(drawerView: View) {}
 
-            override fun onDrawerStateChanged(newState: Int) {
-                // 필요시 구현
-            }
+            override fun onDrawerStateChanged(newState: Int) {}
         })
     }
 
