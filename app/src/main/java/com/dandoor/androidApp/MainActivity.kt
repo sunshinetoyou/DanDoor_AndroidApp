@@ -6,11 +6,15 @@ import android.os.CountDownTimer
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import com.dandoor.ddlib.bluetooth.BTManager
 import com.dandoor.ddlib.bluetooth.BTVehicle
 import com.dandoor.ddlib.repository.DataManager
@@ -28,17 +32,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etSeconds: EditText
     private lateinit var tvTimerDisplay: TextView
 
+    /** 사이드바 관련 변수 */
+    private lateinit var drawerLayout : DrawerLayout
+    private lateinit var sidebarMenu : LinearLayout
+    private lateinit var toolbar: Toolbar
+
     /** 타이머 관련 변수 */
     private var countDownTimer: CountDownTimer? = null
     private var totalTimeInSeconds = 0
     private var isTimerRunning = false
 
+    /** library 활용 */
     private lateinit var btManager: BTManager
     private lateinit var dtManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main)
+        setContentView(R.layout.root)
 
         // DataManger 초기화
         dtManager = DataManager(this)
@@ -54,6 +64,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         initViews()
+        setDrawerListener()
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
         setupBtnListeners()
         // 버튼 누르면 SecondActivity로 이동
         val myButton = findViewById<Button>(R.id.butt)
@@ -75,6 +94,12 @@ class MainActivity : AppCompatActivity() {
         etMinutes = findViewById(R.id.et_minutes)
         etSeconds = findViewById(R.id.et_seconds)
         tvTimerDisplay = findViewById(R.id.tv_timer_display)
+
+        /** 사이브바 관련 변수 */
+        drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        sidebarMenu = findViewById<LinearLayout>(R.id.sidebar_menu)
+        toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         // 초기값 설정
         etMinutes.setText("00")
@@ -184,6 +209,49 @@ class MainActivity : AppCompatActivity() {
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
         return String.format("%02d:%02d", minutes, remainingSeconds)
+    }
+
+    /**
+     * Side Bar
+     *
+     */
+    data class MenuItem(val title: String)
+    fun getDynamicMenuItems(): List<MenuItem> {
+        // 실제로는 서버/DB 등에서 받아온 데이터를 반환
+        return listOf(
+            MenuItem("사이드 메뉴 1"),
+            MenuItem("사이드 메뉴 2"),
+            MenuItem("동적 메뉴 추가")
+        )
+    }
+    fun setDrawerListener() {
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                // 필요시 구현
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                // 사이드바가 열릴 때마다 메뉴 갱신
+                sidebarMenu.removeAllViews()
+                // 예시: 동적으로 메뉴 추가
+                for (item in getDynamicMenuItems()) {
+                    val menuItem = TextView(this@MainActivity).apply {
+                        text = item.title
+                        setPadding(16, 16, 16, 16)
+                        setOnClickListener { /* 메뉴 클릭 동작 */ }
+                    }
+                    sidebarMenu.addView(menuItem)
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {
+                // 필요시 구현
+            }
+
+            override fun onDrawerStateChanged(newState: Int) {
+                // 필요시 구현
+            }
+        })
     }
 
 
