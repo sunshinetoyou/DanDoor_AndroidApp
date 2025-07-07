@@ -12,47 +12,48 @@ import android.content.pm.PackageManager
 import android.os.Build
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.dandoor.ddlib.DataBeacon
+import com.dandoor.ddlib.data.entity.BeaconData
+import com.dandoor.ddlib.repository.DataManager
 
-
-class DandoorBTBeacon(
+/** BTBeacon
+ *
+ *  비콘에 대해 스캐닝 실시 -> DataManager
+ *
+ *  onScanResult 콜백 함수를 통해 데이터 전달
+ *
+ *  (+) startScan(): 스캐닝 시작
+ *  (+) stopScan():  스캐닝 정지
+ */
+class BTBeacon(
     private val context: Context,
     btAdapter: BluetoothAdapter,
+    private val dtManager: DataManager  /** 비콘 스캔 행위를 dtManger와 바로 연결하기 위해 의존성 주입 */
 ) {
-    /** 블루투스 스캔 데이터 처리하는 콜백 인터페이스 */
-    interface BeaconScanCallback {
-        fun onScanResult(data: DataBeacon)
-        fun onScanFinished()
-    }
-
     private val btScanner: BluetoothLeScanner? = btAdapter.bluetoothLeScanner
     private var scanning = false
-    private var userCallback: BeaconScanCallback? = null
 
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             try {
-                val beaconData = DataBeacon(
+                val beaconData = BeaconData(
                     result.device.name ?: result.scanRecord?.deviceName ?: "Unkown",
                     result.rssi,
                     System.currentTimeMillis()
                 )
+                dtManager.saveScanDataSync(beaconData)
                 Log.d("BeaconScan", "비콘 발견: ${result.device.name}, RSSI: ${result.rssi}, bytes: ${result.scanRecord}")
-                userCallback?.onScanResult(beaconData)
             } catch (_: SecurityException) {
+                /** device.name 빨간 줄 방지용 */
             }
         }
-
         override fun onScanFailed(errorCode: Int) {
             Log.e("BeaconScan", "스캔 실패: $errorCode")
             scanning = false
-            userCallback?.onScanFinished()
         }
     }
 
-    fun startScan(callback: BeaconScanCallback) {
+    fun startScan() {
         if (scanning) return
-        userCallback = callback
         scanning = true
         Log.d("BeaconScan", "스캔 시작")
 
@@ -98,7 +99,6 @@ class DandoorBTBeacon(
 
         btScanner?.startScan(filters, settings, scanCallback)
     }
-
     fun stopScan() {
         if (!scanning) return
 
@@ -127,6 +127,6 @@ class DandoorBTBeacon(
 
         btScanner?.stopScan(scanCallback)
         scanning = false
-        userCallback?.onScanFinished()
+//        dtManager.cancelCoroutineScope()
     }
 }
