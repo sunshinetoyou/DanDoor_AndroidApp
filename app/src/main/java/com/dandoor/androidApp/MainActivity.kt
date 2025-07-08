@@ -11,10 +11,18 @@ import android.widget.Toast
 import android.widget.ToggleButton
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import androidx.lifecycle.lifecycleScope
 import com.dandoor.ddlib.bluetooth.BTManager
 import com.dandoor.ddlib.bluetooth.BTVehicle
 import com.dandoor.ddlib.repository.DataManager
+import com.dandoor.ddlib.data.entity.Lab
+import com.google.android.material.navigation.NavigationView
 import com.google.android.material.progressindicator.CircularProgressIndicator
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
 
@@ -27,6 +35,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etMinutes: EditText
     private lateinit var etSeconds: EditText
     private lateinit var tvTimerDisplay: TextView
+    private lateinit var drawerLayout: DrawerLayout
+    private lateinit var navView: NavigationView
+    private lateinit var rvLabList: RecyclerView
+    private lateinit var btnCreateNewLab: Button
+    private lateinit var labAdapter: LabListAdapter
 
     /** 타이머 관련 변수 */
     private var countDownTimer: CountDownTimer? = null
@@ -38,21 +51,36 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main)
+        // 새로운 activity_main.xml 사용 (기존 main.xml을 include)
+        setContentView(R.layout.activity_main)
+        // Library 모듈 초기화
+        initializeManagers()
 
+        // UI 컴포넌트 초기화
+        initViews()
+
+        // 사이드바 설정
+        setupNavigationDrawer()
+
+        // 기존 기능 설정
+        setupBtnListeners()
+
+        // Lab 데이터 로드 및 사이드바 리스트 설정
+        loadLabDataAndSetupList()
+    }
+    private fun initializeManagers() {
         // DataManger 초기화
         dtManager = DataManager(this)
 
         // BluetoothManger 초기화
         btManager = BTManager(this, dtManager)
-        btManager.checkBTPermission(this) {granted ->
+        btManager.checkBTPermission(this) { granted ->
             if (granted) {
                 setVehicleCallback()
             } else {
                 Toast.makeText(this, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
         }
-
         initViews()
         setupBtnListeners()
         // 버튼 누르면 SecondActivity로 이동
@@ -75,12 +103,99 @@ class MainActivity : AppCompatActivity() {
         etMinutes = findViewById(R.id.et_minutes)
         etSeconds = findViewById(R.id.et_seconds)
         tvTimerDisplay = findViewById(R.id.tv_timer_display)
-
+        drawerLayout = findViewById(R.id.drawer_layout)
+        navView = findViewById(R.id.nav_view)
         // 초기값 설정
         etMinutes.setText("00")
         etSeconds.setText("00")
+        // NavigationView의 헤더에서 RecyclerView와 버튼 찾기
+        val headerView = navView.getHeaderView(0)
+        rvLabList = headerView.findViewById(R.id.rv_lab_list)
+        btnCreateNewLab = headerView.findViewById(R.id.btn_create_new_lab)
     }
+    /**
+     * Navigation Drawer 설정
+     */
+    private fun setupNavigationDrawer() {
+        // 햄버거 메뉴 버튼을 기존 UI에 추가 (toolbar 없이 텍스트로 대체)
+        val btnOpenDrawer = Button(this).apply {
+            text = "실험 목록 ☰"
+            setOnClickListener {
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+        }
 
+        // 새 실험 생성 버튼 클릭 리스너
+        btnCreateNewLab.setOnClickListener {
+            createNewLab()
+        }
+    }
+    /**
+     * Library DataManager를 통해 Lab 데이터 로드 및 사이드바 리스트 설정
+     */
+    private fun loadLabDataAndSetupList() {
+        lifecycleScope.launch {
+            try {
+                // Library의 DataManager를 통해 모든 Lab 데이터 조회
+                val labList = dtManager.readAllLabs()
+
+                // 사이드바 RecyclerView에 데이터 표시
+                setupLabRecyclerView(labList)
+
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "데이터 로드 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    /**
+     * Lab 데이터를 사이드바 RecyclerView에 표시
+     */
+    private fun setupLabRecyclerView(labList: List<Lab>) {
+        // RecyclerView 레이아웃 매니저 설정
+        rvLabList.layoutManager = LinearLayoutManager(this)
+
+        // Lab 어댑터 생성 및 아이템 클릭 리스너 설정
+        labAdapter = LabListAdapter(labList) { lab ->
+            // Lab 아이템 클릭 시 ResultActivity로 이동
+            openResultActivity(lab)
+            // 사이드바 닫기
+            drawerLayout.closeDrawer(GravityCompat.START)
+        }
+
+        // RecyclerView에 어댑터 연결
+        rvLabList.adapter = labAdapter
+    }
+    /**
+     * 새로운 Lab 생성 (Library DataManager 사용)
+     */
+    private fun createNewLab() {
+        lifecycleScope.launch {
+            try {
+                // Library의 DataManager를 통해 기본 Lab 생성
+                val newLabId = dtManager.createLabDefault()
+
+                Toast.makeText(this@MainActivity, "새 실험 생성됨 (ID: $newLabId)", Toast.LENGTH_SHORT).show()
+
+                // 사이드바 리스트 새로고침
+                loadLabDataAndSetupList()
+
+            } catch (e: Exception) {
+                Toast.makeText(this@MainActivity, "실험 생성 실패: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+    /**
+     * ResultActivity로 이동 (labID 전달)
+     */
+    private fun openResultActivity(lab: Lab) {
+        val intent = Intent(this, ResultActivity::class.java).apply {
+            // Lab ID를 Intent Extra로 전달
+            putExtra("labID", lab.labID)
+            putExtra("labAlias", lab.alias)
+            putExtra("createdAt", lab.createdAt)
+        }
+        startActivity(intent)
+    }
     /** 블루투스 연결, 랩 토글, 시동 토글 버튼 리스너 */
     private fun setupBtnListeners() {
         btnConnectBluetooth.setOnClickListener {
@@ -232,5 +347,23 @@ class MainActivity : AppCompatActivity() {
             tvBleStatus.text = "BLUETOOTH: 연결 해제"
             tvBleStatus.setTextColor(ContextCompat.getColor(this, R.color.status_disconnected))
         }
+    }
+    /**
+     * 뒤로가기 버튼 처리 (사이드바가 열려있으면 닫기)
+     */
+    override fun onBackPressed() {
+        if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
+        }
+    }
+
+    /**
+     * Activity 종료 시 리소스 해제
+     */
+    override fun onDestroy() {
+        super.onDestroy()
+        countDownTimer?.cancel()
     }
 }
