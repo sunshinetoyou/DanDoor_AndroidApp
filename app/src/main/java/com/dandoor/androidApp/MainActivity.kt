@@ -6,17 +6,25 @@ import android.os.CountDownTimer
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import android.widget.ToggleButton
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.lifecycleScope
 import com.dandoor.ddlib.bluetooth.BTManager
 import com.dandoor.ddlib.bluetooth.BTVehicle
+import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
+/*
 import android.util.Log
 import com.dandoor.ddlib.bluetooth.ReceiveCallback
+*/
 
 class MainActivity : AppCompatActivity() {
 
@@ -30,17 +38,23 @@ class MainActivity : AppCompatActivity() {
     private lateinit var etSeconds: EditText
     private lateinit var tvTimerDisplay: TextView
 
+    /** 사이드바 관련 변수 */
+    private lateinit var drawerLayout : DrawerLayout
+    private lateinit var sidebarMenu : LinearLayout
+    private lateinit var toolbar: Toolbar
+
     /** 타이머 관련 변수 */
     private var countDownTimer: CountDownTimer? = null
     private var totalTimeInSeconds = 0
     private var isTimerRunning = false
 
+    /** library 활용 */
     private lateinit var btManager: BTManager
     private lateinit var dtManager: DataManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.main)
+        setContentView(R.layout.root)
 
         // DataManger 초기화
         dtManager = DataManager(this)
@@ -63,6 +77,15 @@ class MainActivity : AppCompatActivity() {
             }
         }
         initViews()
+        setDrawerListener()
+        val toggle = ActionBarDrawerToggle(
+            this, drawerLayout, toolbar,
+            R.string.navigation_drawer_open,
+            R.string.navigation_drawer_close
+        )
+        drawerLayout.addDrawerListener(toggle)
+        toggle.syncState()
+
         setupBtnListeners()
         // 버튼 누르면 SecondActivity로 이동
         val myButton = findViewById<Button>(R.id.butt)
@@ -84,6 +107,12 @@ class MainActivity : AppCompatActivity() {
         etMinutes = findViewById(R.id.et_minutes)
         etSeconds = findViewById(R.id.et_seconds)
         tvTimerDisplay = findViewById(R.id.tv_timer_display)
+
+        /** 사이브바 관련 변수 */
+        drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        sidebarMenu = findViewById<LinearLayout>(R.id.sidebar_menu)
+        toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
 
         // 초기값 설정
         etMinutes.setText("00")
@@ -193,6 +222,42 @@ class MainActivity : AppCompatActivity() {
         val minutes = seconds / 60
         val remainingSeconds = seconds % 60
         return String.format("%02d:%02d", minutes, remainingSeconds)
+    }
+
+    /**
+     * Side Bar
+     *
+     */
+    fun setDrawerListener() {
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+
+            override fun onDrawerOpened(drawerView: View) {
+                lifecycleScope.launch {
+                    val labs = dtManager.readAllLabs()
+                    sidebarMenu.removeAllViews()
+                    for (lab in labs) {
+                        val menuItem = TextView(drawerView.context).apply {
+                            text = "ID: ${lab.labID}\nAlias: ${lab.alias}\nCreated: ${lab.createdAt}"
+                            setPadding(16, 16, 16, 16)
+                            setOnClickListener {
+                                // Intent로 ResultActivity로 이동
+                                val intent = Intent(this@MainActivity, ResultActivity::class.java)
+                                intent.putExtra("labID", lab.labID)
+                                intent.putExtra("alias", lab.alias)
+                                intent.putExtra("createdAt", lab.createdAt)
+                                startActivity(intent)
+                            }
+                        }
+                        sidebarMenu.addView(menuItem)
+                    }
+                }
+            }
+
+            override fun onDrawerClosed(drawerView: View) {}
+
+            override fun onDrawerStateChanged(newState: Int) {}
+        })
     }
 
 
