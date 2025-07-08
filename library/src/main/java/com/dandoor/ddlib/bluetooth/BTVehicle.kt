@@ -94,4 +94,10 @@ class BTVehicle(
             vehicleConnectionCallback?.onCommandError("명령 전송 실패: ${e.message}")
         }
     }
+
+    private var bluetoothSocket: BluetoothSocket? = null  // 연결 성공 후 저장되어 있을 socket
+
+    fun getSocket(): BluetoothSocket? {
+        return bluetoothSocket
+    }
 }
