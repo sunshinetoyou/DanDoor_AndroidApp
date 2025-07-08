@@ -82,7 +82,7 @@ class BTBeacon(
 
         // 1. ScanSettings 설정 (최적화된 설정)
         val settings = ScanSettings.Builder().apply {
-//            setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY) // 최대 속도 모드
+            setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY) // 최대 속도 모드
 //            setReportDelay(0) // 즉시 결과 보고
 //            setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE) // 민감도 최대
         }.build()

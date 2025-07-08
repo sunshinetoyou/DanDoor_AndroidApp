@@ -40,10 +40,8 @@ class BTManager(
     private val beaconManager = BTBeacon(context, btAdapter, dtManager)
 
     /** For Permission */
-    fun checkBTPermission(activity: Activity, callback: (Boolean) -> Unit) {
-        if (permissionManager.hasRequiredPermissions()) {
-            callback(true)
-        } else {
+    fun checkBTPermission(activity: Activity) {
+        if (!permissionManager.hasRequiredPermissions()) {
             permissionManager.requestBluetoothPermissions(activity)
         }
     }

@@ -49,7 +49,7 @@ class DataManager(context: Context) {
             speed = 0.0,
             pathLength = 2.0,
             startPos = Position(0.0, 0.0),
-            windowSize = 250L
+            windowSize = 1100L
         )
     }
 
@@ -120,8 +120,16 @@ class DataManager(context: Context) {
         )
         scanDataDao.insert(scanData)
     }
-    suspend fun readScanData(id: Long): List<ScanData> {
-        return scanDataDao.getScanData(id)
+    suspend fun readScanData(
+        id: Long,
+        stime: Long? = null,
+        etime: Long? = null
+    ): List<ScanData> {
+        return if (stime != null && etime != null) {
+            scanDataDao.getScanDataInWindow(id, stime, etime)
+        } else {
+            scanDataDao.getScanData(id)
+        }
     }
 
     /** EstiData Entity CRUD */
@@ -143,24 +151,51 @@ class DataManager(context: Context) {
 
     /** Special */
     /** 시간 윈도우(0.5)에 따른 각 비콘의 평균 RSSI 값 도출*/
-    fun getWindowedBeaconRssi(labId: Long): List<TimeWindowBeaconRssi> {
+    fun getWindowedBeaconRssi(labId: Long?): List<TimeWindowBeaconRssi> {
+        if (labId == null) error("존재하지 않는 labID 입니다.")
+
         // 1. LabID로 ScanData 쿼리
         val scanDataList = runBlocking {
             readScanData(labId)
         }
+        if (scanDataList.isEmpty()) return emptyList()
 
-        // 2. 시간 윈도우 단위로 그룹핑
-        val groupedByWindow = scanDataList.groupBy { it.timestamp / defualtConfig.windowSize }
+        // 2. 윈도우 시작 기준 계산
+        val minTimestamp = scanDataList.minOf { it.timestamp }
+        val windowSize = defualtConfig.windowSize
 
-        // 3. 각 윈도우 내에서 beaconID별로 그룹핑 후 RSSI 평균 계산
+        // 3. 윈도우 인덱스 계산
+        val groupedByWindow = scanDataList.groupBy { (it.timestamp - minTimestamp) / windowSize }
+
+        // 4. 각 윈도우 내에서 beaconID별로 그룹핑 후 RSSI 평균 계산
         return groupedByWindow.map { (windowIdx, windowData) ->
             val beaconAverages = windowData
                 .groupBy { it.beaconID }
                 .mapValues { (_, scans) -> scans.map { it.rssi }.average() }
             TimeWindowBeaconRssi(
-                windowStart = windowIdx * defualtConfig.windowSize,
+                windowStart = minTimestamp + windowIdx * windowSize,
                 beaconRssi = beaconAverages
             )
         }.sortedBy { it.windowStart }
+    }
+    fun getSlicedData(labId: Long?, stime: Long): TimeWindowBeaconRssi {
+        if (labId == null) error("존재하지 않는 labID 입니다.")
+
+        val windowSize = defualtConfig.windowSize
+
+        val scanDataList = runBlocking {
+            readScanData(labId)
+        }.filter { it.timestamp in stime until (stime + windowSize) }
+
+        if (scanDataList.isEmpty()) error("해당 구간에 데이터가 없습니다.")
+
+        val beaconAverages = scanDataList
+            .groupBy { it.beaconID }
+            .mapValues { (_, scans) -> scans.map { it.rssi }.average() }
+
+        return TimeWindowBeaconRssi(
+            windowStart = stime,
+            beaconRssi = beaconAverages
+        )
     }
 }

@@ -15,4 +15,11 @@ interface ScanDataDao {
 
     @Query("SELECT * FROM scan_data WHERE lid = :labID")
     suspend fun getScanData(labID: Long): List<ScanData>
+
+    @Query("SELECT * FROM scan_data WHERE lid = :labID AND timestamp BETWEEN :stime AND :etime")
+    suspend fun getScanDataInWindow(
+        labID: Long,
+        stime: Long,
+        etime: Long
+    ): List<ScanData>
 }
