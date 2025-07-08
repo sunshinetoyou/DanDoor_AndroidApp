@@ -50,13 +50,13 @@ class MainActivity : AppCompatActivity() {
         btManager.checkBTPermission(this) {granted ->
             if (granted) {
                 setVehicleCallback()
-                //아두이노로 부터 오는 거리 log 찍기
-                btManager.setReceiveCallback(object : ReceiveCallback {
-                    override fun onReceive(message: String) {
-                        Log.d("ArduinoBT", " 아두이노로 부터 수신 거리: $message")
-                        // logcat에 "ArduinoBT" 검색하면 됨
-                    }
-                })
+                // //아두이노로 부터 오는 거리 log 찍기
+                // btManager.setReceiveCallback(object : ReceiveCallback {
+                //     override fun onReceive(message: String) {
+                //         Log.d("ArduinoBT", " 아두이노로 부터 수신 거리: $message")
+                //         // logcat에 "ArduinoBT" 검색하면 됨
+                //     }
+                // })
 
             } else {
                 Toast.makeText(this, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
