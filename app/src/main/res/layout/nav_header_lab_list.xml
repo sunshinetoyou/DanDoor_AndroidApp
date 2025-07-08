@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@color/white">
+
+    <!-- 헤더 타이틀 -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="실험 데이터 목록"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/black"
+        android:paddingTop="24dp"
+        android:paddingBottom="16dp"
+        android:gravity="center" />
+
+    <!-- 실험 리스트 RecyclerView -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_lab_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:scrollbars="vertical"
+        android:clipToPadding="false"
+        android:paddingTop="8dp" />
+
+    <!-- 하단 새 실험 생성 버튼 -->
+    <Button
+        android:id="@+id/btn_create_new_lab"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="새 실험 생성"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/purple_500" />
+
+</LinearLayout>

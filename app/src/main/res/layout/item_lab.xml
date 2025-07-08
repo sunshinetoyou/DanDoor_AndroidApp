@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    app:cardBackgroundColor="@color/white">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <!-- 실험명 (alias) -->
+        <TextView
+            android:id="@+id/tv_lab_alias"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="실험 1"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            android:maxLines="1"
+            android:ellipsize="end" />
+
+        <!-- 실험 ID -->
+        <TextView
+            android:id="@+id/tv_lab_id"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lab ID: 1"
+            android:textSize="12sp"
+            android:textColor="@color/gray"
+            android:layout_marginTop="4dp" />
+
+        <!-- 생성 날짜 -->
+        <TextView
+            android:id="@+id/tv_created_at"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="2024-07-08 14:30"
+            android:textSize="12sp"
+            android:textColor="@color/gray"
+            android:layout_marginTop="2dp" />
+
+        <!-- 비콘 개수 정보 -->
+        <TextView
+            android:id="@+id/tv_beacon_count"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="비콘: 4개"
+            android:textSize="11sp"
+            android:textColor="@color/purple_500"
+            android:layout_marginTop="4dp" />
+
+    </LinearLayout>
+
+</androidx.cardview.widget.CardView>
