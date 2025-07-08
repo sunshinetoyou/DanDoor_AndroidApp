@@ -63,5 +63,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.github.sunshinetoyou:DanDoor_AndroidApp:Tag")
+    implementation("com.github.sunshinetoyou:DanDoor_AndroidApp:0.0.1")
 }
