@@ -38,15 +38,15 @@ android {
             withJavadocJar()
         }
     }
-    afterEvaluate {
-        publishing {
-            publications {
-                create<MavenPublication>("release") {
-                    from(components["release"])
-                    groupId = "com.github.sunshinetoyou"
-                    artifactId = "com.dandoor.ddlib"
-                    version = "0.0.1" // 예: "1.0.0"
-                }
+}
+afterEvaluate {
+    publishing {
+        publications {
+            create<MavenPublication>("release") {
+                from(components["release"])
+                groupId = "com.github.sunshinetoyou"
+                artifactId = "com.dandoor.ddlib"
+                version = "0.0.1" // 예: "1.0.0"
             }
         }
     }
