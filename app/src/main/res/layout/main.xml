@@ -21,7 +21,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- 3개 버튼 영역 -->
+
     <Button
         android:id="@+id/btn_connect_bluetooth"
         android:layout_width="0dp"

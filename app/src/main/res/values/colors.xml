@@ -9,4 +9,7 @@
     <color name="white">#FFFFFFFF</color>
     <color name="status_connected">#4CAF50</color>
     <color name="status_disconnected">#F44336</color>
+    <color name="gray">#FF666666</color>
+    <color name="green">#FF4CAF50</color>
+    <color name="red">#FFF44336</color>
 </resources>
