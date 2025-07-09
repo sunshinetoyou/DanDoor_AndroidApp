@@ -78,8 +78,6 @@ class LabActivity : AppCompatActivity() {
 
                 val elapsedMillis = endTime - startTime
                 val distance = elapsedMillis * 70 / 1000  // 총 거리 (ms → 초 → cm)
-
-                // 🧾 시간 포맷 변환
                 val startFormatted = formatWindowStartMs(startTime)
                 val endFormatted = formatWindowStartMs(endTime)
 
@@ -112,7 +110,6 @@ class LabActivity : AppCompatActivity() {
             }, 1000) // 1초 후 스캔 종료
         }
     }
-
 
     fun formatWindowStartMs(windowStart: Long): String {
         val date = Date(windowStart)

@@ -1,74 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <!-- Toolbar 영역 -->
+    android:layout_height="match_parent"
+    tools:context=".LabActivity">
+
+    <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/purple_200"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        tools:ignore="MissingConstraints" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:padding="24dp">
+    <!-- 정사각형 도형 (Toolbar 아래 + 여백) -->
+    <com.dandoor.androidApp.SquareBoxView
+        android:id="@+id/squareBox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        android:padding="50dp"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintDimensionRatio="1:1" />
 
-        <!-- 스크롤 가능한 TextView (나중에 그래프로 대체) -->
+    <!-- 결과 텍스트 -->
+    <TextView
+        android:id="@+id/resultTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:text="결과 출력 영역"
+        android:textSize="16sp"
+        android:textColor="#000000"
+        app:layout_constraintTop_toBottomOf="@id/squareBox"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- total_accuracy 레이블 -->
+    <!-- 정확도 -->
+    <TextView
+        android:id="@+id/labelTotalAccuracy"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="Total Accuracy: 0%"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintTop_toBottomOf="@id/resultTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <?xml version="1.0" encoding="utf-8"?>
-        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:id="@+id/rootLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            tools:context=".LabActivity">
-
-            <!-- 상단: 정사각형 도형 -->
-            <com.dandoor.androidApp.SquareBoxView
-                android:id="@+id/squareBox"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <!-- 하단: 결과 텍스트 -->
-            <TextView
-                android:id="@+id/resultTextView"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                android:padding="16dp"
-                android:text="결과 출력 영역"
-                android:textSize="16sp"
-                android:textColor="#000000" />
-        </LinearLayout>
-
-
-        <TextView
-            android:id="@+id/labelTotalAccuracy"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Total Accuracy: 0%"
-            android:textStyle="bold"
-            android:textSize="18sp"
-            android:gravity="center"
-            android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"/>
-
-        <!-- 스캔하기 버튼 -->
-        <Button
-            android:id="@+id/btnScan"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="스캔하기"/>
-    </LinearLayout>
-
+    <!-- 버튼 -->
+    <Button
+        android:id="@+id/btnScan"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:text="스캔하기"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/labelTotalAccuracy"
+        app:layout_constraintVertical_bias="0.341" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
