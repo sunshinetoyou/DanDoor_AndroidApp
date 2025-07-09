@@ -5,9 +5,7 @@ import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import android.os.Handler
-import android.util.Log
 import com.dandoor.ddlib.repository.DataManager
-import java.io.IOException
 
 /** BTManger
  * 기능 범위 : [권한 획득], [차량 제어], [비콘 신호 수신]
@@ -27,11 +25,6 @@ import java.io.IOException
  * F?. 비콘 데이터 스캔 정지            : stopScan()
  * F?. 주기적인 비콘_데이터 스캔 시작     : startPeriodicScan()                             (x)
  */
-// 아두이노 정보 수신을 위한 추상화
-interface ReceiveCallback {
-    fun onReceive(message: String)
-}
-
 class BTManager(
     private val context: Context,
     dtManager: DataManager
@@ -41,6 +34,7 @@ class BTManager(
         val btManager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
         btManager.adapter
     }
+
     private val permissionManager = BTPermission(context)
     private val vehicleManager = BTVehicle(context, btAdapter)
     private val beaconManager = BTBeacon(context, btAdapter, dtManager)
@@ -56,15 +50,12 @@ class BTManager(
     fun setVehicleCallback(callback: BTVehicle.VehicleConnectionCallback) {
         vehicleManager.vehicleConnectionCallback = callback
     }
-
     fun connectToCar() {
         vehicleManager.connectToCar()
     }
-
     fun disconnectFromCar() {
         vehicleManager.disconnectFromCar()
     }
-
     fun sendCarCommand(command: String) {
         vehicleManager.sendCarCommand(command)
     }
@@ -80,50 +71,15 @@ class BTManager(
         }
         handler.post(scanRunnable)
     }
-
     fun startScan() {
         beaconManager.startScan()
     }
-
     fun stopScan() {
         beaconManager.stopScan()
     }
 
     // 권한 설정 결과
-    fun onRequestPermissionResult(
-        requestCode: Int,
-        grantResult: IntArray,
-        callback: (Boolean) -> Unit
-    ) {
+    fun onRequestPermissionResult(requestCode: Int, grantResult: IntArray, callback: (Boolean) -> Unit) {
         permissionManager.onRequestPermissionsResult(requestCode, grantResult, callback)
     }
-
-    //아두이노가 메시지 수신시 어떻게 행동할지 결정
-
-    private var receiveCallback: ReceiveCallback? = null
-
-    fun setReceiveCallback(callback: ReceiveCallback) {
-        this.receiveCallback = callback
-    }
-
-    // 아두이노 메시지 수신처리
-    private fun startReceiving() {
-        Thread {
-            try {
-                val socket = vehicleManager.getSocket()  // 여기서 받아옴
-                val inputStream = socket?.inputStream ?: return@Thread
-                val buffer = ByteArray(1024)
-
-                while (true) {
-                    val bytes = inputStream.read(buffer)
-                    val message = String(buffer, 0, bytes)
-                    receiveCallback?.onReceive(message)
-                }
-
-            } catch (e: IOException) {
-                Log.e("BTManager", "수신 실패", e)
-            }
-        }.start()
-    }
-
 }
