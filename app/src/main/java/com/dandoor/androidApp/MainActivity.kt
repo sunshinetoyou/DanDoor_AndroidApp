@@ -21,7 +21,10 @@ import com.dandoor.ddlib.bluetooth.BTVehicle
 import com.dandoor.ddlib.data.entity.Lab
 import com.dandoor.ddlib.repository.DataManager
 import com.google.android.material.progressindicator.CircularProgressIndicator
-import kotlinx.coroutines.launch
+/*
+import android.util.Log
+import com.dandoor.ddlib.bluetooth.ReceiveCallback
+*/
 
 class MainActivity : AppCompatActivity() {
 
@@ -61,11 +64,18 @@ class MainActivity : AppCompatActivity() {
         btManager.checkBTPermission(this) {granted ->
             if (granted) {
                 setVehicleCallback()
+                // //아두이노로 부터 오는 거리 log 찍기
+                // btManager.setReceiveCallback(object : ReceiveCallback {
+                //     override fun onReceive(message: String) {
+                //         Log.d("ArduinoBT", " 아두이노로 부터 수신 거리: $message")
+                //         // logcat에 "ArduinoBT" 검색하면 됨
+                //     }
+                // })
+
             } else {
                 Toast.makeText(this, "권한이 필요합니다.", Toast.LENGTH_SHORT).show()
             }
         }
-
         initViews()
         setDrawerListener()
         val toggle = ActionBarDrawerToggle(
