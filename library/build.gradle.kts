@@ -30,7 +30,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
     publishing {
         singleVariant("release") {
@@ -45,8 +45,8 @@ afterEvaluate {
             create<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.sunshinetoyou"
-                artifactId = "com.dandoor.ddlib"
-                version = "0.0.2" // 예: "1.0.0"
+                artifactId = "DanDoor_AndroidApp"
+                version = "0.0.3" // 예: "1.0.0"
             }
         }
     }
@@ -63,5 +63,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.github.sunshinetoyou:DanDoor_AndroidApp:0.0.2")
+    implementation("com.github.sunshinetoyou:DanDoor_AndroidApp:0.0.3")
 }
