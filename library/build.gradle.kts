@@ -26,8 +26,8 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
         jvmTarget = "17"
@@ -46,7 +46,7 @@ afterEvaluate {
                 from(components["release"])
                 groupId = "com.github.sunshinetoyou"
                 artifactId = "DanDoor_AndroidApp"
-                version = "0.0.5" // 예: "1.0.0"
+                version = "0.0.6" // 예: "1.0.0"
             }
         }
     }
@@ -63,5 +63,4 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-    implementation("com.github.sunshinetoyou:DanDoor_AndroidApp:0.0.5")
 }
