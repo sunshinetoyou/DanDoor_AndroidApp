@@ -12,14 +12,14 @@ Android 기반 BLE Indoor Positioning 정확도 탐지 애플리케이션
 실험을 진행하면 경로 위에 특정 시점마다 실제 위치와 예상 위치를 화면에 띄워서 즉각적인 확인이 가능하며,
 이전에 진행한 실험도 기록을 확인하여 이어서 실험을 진행할 수도 있습니다. 
 또한 분석할 lab을 선택하면 실험횟수에 따른 정확도를 그래프로 확인할 수 있습니다.  
-예시 UI 혹은 기능들은 **사용자 문서**에 정리해두었습니다.
+예시 UI 혹은 기능들은 [사용자 문서](https://github.com/sunshinetoyou/DanDoor_AndroidApp/blob/main/Document/%EC%82%AC%EC%9A%A9%EC%9E%90%20%EB%AC%B8%EC%84%9C.pdf)에 정리해두었습니다.
 
 ## Android Library
 기본적으로 `DandoorBTManager`,`DataManager`,`EstimationPluginManager`이 주요 기능들을 담당하고 있습니다.  
 `DandoorBTManager`는 블루투스 권한을 확인하여 차량을 제어하고 비콘 신호를 수신하는 기능을 다루며,  
 `DataManager`는 데이터들을 관리하는 총괄 매니저 클래스 기능을 합니다.  
 `EstimationPluginManager`는 수신되는 rssi값을 이용해 예상되는 위치를 계산하여 평가 및 데이터를 저장하는 기능입니다.  
-자세한 내용은 **개발자 문서**에 정리해두었습니다.
+자세한 내용은 [개발자 문서](https://github.com/sunshinetoyou/DanDoor_AndroidApp/blob/main/Document/%EA%B0%9C%EB%B0%9C%EC%9E%90%20%EB%AC%B8%EC%84%9C.pdf)에 정리해두었습니다.
 
 
 
