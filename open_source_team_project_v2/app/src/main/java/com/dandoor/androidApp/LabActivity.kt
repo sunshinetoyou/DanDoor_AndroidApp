@@ -49,67 +49,87 @@ class LabActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
         supportActionBar?.title = "Dandoor_LAB_${lid}"
     }
+    private var scanState = "스캔 시작"
+    private var startTime: Long = 0
+    private var endTime: Long = 0
+
     private fun init() {
         /** 컴포넌트 변수 */
         resultView = findViewById(R.id.resultTextView)
-        resultView.text = "스캔전입니다."
+        resultView.text = ""
 
         accuracyLabel = findViewById(R.id.labelTotalAccuracy)
         scanButton = findViewById(R.id.btnScan)
-
         toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
         /** 전역변수 */
         lid = intent.getLongExtra("lid", -1L)
 
+        scanButton.text = scanState
+
         scanButton.setOnClickListener {
-            scanButton.isEnabled = false
-            val originalText = scanButton.text
-            scanButton.text = "스캔 중..."
+            when (scanState) {
+                "스캔 시작" -> {
+                    scanState = "스캔 중"
+                    scanButton.text = scanState
+                    scanButton.isEnabled = false
 
-            val startTime = System.currentTimeMillis()
-
-            btManager.startScan()
-
-            scanButton.postDelayed({
-                val endTime = System.currentTimeMillis()
-                btManager.stopScan()
-
-                val elapsedMillis = endTime - startTime
-                val distance = elapsedMillis * 70 / 1000  // 총 거리 (ms → 초 → cm)
-                val startFormatted = formatWindowStartMs(startTime)
-                val endFormatted = formatWindowStartMs(endTime)
-
-                try {
-                    val windowData = dtManager.getSlicedData(lid, startTime)
-                    val beaconInfo = windowData.beaconRssi.entries.joinToString(separator = "\n") { (beacon, rssi) ->
-                        "  $beacon: $rssi"
-                    }
-
-                    val text = """
-                    시작시간 : $startFormatted
-                    도착시간 : $endFormatted
-                    총 거리: ${distance}cm
-                    
-                    스캔된 비콘 정보:
-                    $beaconInfo
-                """.trimIndent()
-
-                    resultView.text = text
-                } catch (e: Exception) { //속력은 초속 70cm로 하였습니다.
-                    resultView.text = """
-                    시작시간 : $startFormatted
-                    도착시간 : $endFormatted
-                    총 거리: ${distance}cm
-                """.trimIndent()
+                    // 스캔 시작
+                    startTime = System.currentTimeMillis()
+                    val startFormatted = formatWindowStartMs(startTime)
+                    btManager.startScan()
+                    resultView.text = "시작시간:$startFormatted"
+                    // 일정 시간 후 상태 전환 가능하게 버튼 활성화
+                    scanButton.postDelayed({
+                        scanButton.isEnabled = true
+                    }, 200)
                 }
 
-                scanButton.text = originalText
-                scanButton.isEnabled = true
-            }, 1000) // 1초 후 스캔 종료
+                "스캔 중" -> {
+                    scanState = "스캔 완료"
+                    scanButton.text = scanState
+                    scanButton.isEnabled = false
+
+                    // 스캔 종료
+                    endTime = System.currentTimeMillis()
+                    btManager.stopScan()
+
+                    val elapsedMillis = endTime - startTime
+                    val distance = elapsedMillis * 70 / 1000
+                    val startFormatted = formatWindowStartMs(startTime)
+                    val endFormatted = formatWindowStartMs(endTime)
+
+                    try {
+                        val windowData = dtManager.getSlicedData(lid, startTime)
+                        val beaconInfo = windowData.beaconRssi.entries.joinToString(separator = "\n") { (beacon, rssi) ->
+                            "  $beacon: $rssi"
+                        }
+
+                        val text = """
+                        시작시간 : $startFormatted
+                        도착시간 : $endFormatted
+                        총 거리: ${distance}cm
+                        
+                        스캔된 비콘 정보:
+                        $beaconInfo
+                    """.trimIndent()
+
+                        resultView.text = text
+                    } catch (e: Exception) {
+                        resultView.text = """
+                        시작시간 : $startFormatted
+                        도착시간 : $endFormatted
+                        총 거리: ${distance}cm
+                    """.trimIndent()
+                    }
+
+                    scanButton.isEnabled = false
+                }
+            }
         }
     }
+
 
     fun formatWindowStartMs(windowStart: Long): String {
         val date = Date(windowStart)
