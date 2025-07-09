@@ -42,3 +42,5 @@ dependencies {
 	implementation("com.github.User:Repo:Tag")
 }
 ```
+### 버전 관리
+ver.1은 main, ver.2는 branch/v2에 있습니다.
